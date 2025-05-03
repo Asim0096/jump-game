@@ -4,10 +4,18 @@
   <meta charset="UTF-8" />
   <title>Jump Game</title>
   <style>
+    body {
+      margin: 0;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
     canvas {
       border: 2px solid black;
-      display: block;
-      margin: 20px auto;
+      background-color: #fff;
     }
   </style>
 </head>
@@ -17,14 +25,18 @@
     const canvas = document.getElementById('gameCanvas');
     const ctx = canvas.getContext('2d');
 
-    let player = { x: 50, y: 250, width: 30, height: 30, velocityY: 0, jumping: false };
+    const playerImg = new Image();
+    playerImg.src = 'https://i.imgur.com/OdL0XPt.png'; // صورة شخصية كرتونية
+
+    let player = { x: 50, y: 250, width: 40, height: 40, velocityY: 0, jumping: false };
     let gravity = 0.5;
     let score = 0;
     let obstacles = [];
     let gameOver = false;
+    let gameStarted = false;
 
     function jump() {
-      if (!player.jumping && !gameOver) {
+      if (!player.jumping && !gameOver && gameStarted) {
         player.velocityY = -10;
         player.jumping = true;
       }
@@ -32,6 +44,9 @@
 
     document.addEventListener('keydown', function(e) {
       if (e.code === 'Space') {
+        if (!gameStarted) {
+          gameStarted = true;
+        }
         jump();
       } else if (e.code === 'Enter' && gameOver) {
         resetGame();
@@ -39,7 +54,9 @@
     });
 
     function spawnObstacle() {
-      obstacles.push({ x: canvas.width, y: 270, width: 20, height: 30, scored: false });
+      if (gameStarted && !gameOver) {
+        obstacles.push({ x: canvas.width, y: 270, width: 20, height: 30, scored: false });
+      }
     }
 
     setInterval(spawnObstacle, 1500);
@@ -60,16 +77,17 @@
       obstacles = [];
       score = 0;
       gameOver = false;
+      gameStarted = false;
     }
 
     function update() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw ground
+      // الأرض
       ctx.fillStyle = 'green';
       ctx.fillRect(0, 280, canvas.width, 20);
 
-      if (!gameOver) {
+      if (!gameOver && gameStarted) {
         player.velocityY += gravity;
         player.y += player.velocityY;
         if (player.y > 270) {
@@ -78,15 +96,19 @@
         }
       }
 
-      // Draw player
-      ctx.fillStyle = 'blue';
-      ctx.fillRect(player.x, player.y, player.width, player.height);
+      // شخصية اللاعب (صورة)
+      if (playerImg.complete) {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+      } else {
+        ctx.fillStyle = 'blue';
+        ctx.fillRect(player.x, player.y, player.width, player.height);
+      }
 
-      // Draw obstacles
+      // العقبات
       ctx.fillStyle = 'red';
       for (let i = 0; i < obstacles.length; i++) {
         let obs = obstacles[i];
-        if (!gameOver) obs.x -= 5;
+        if (!gameOver && gameStarted) obs.x -= 5;
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
 
         if (!gameOver && detectCollision(player, obs)) {
@@ -99,13 +121,21 @@
         }
       }
 
-      // Draw score
+      // النتيجة
       ctx.fillStyle = 'black';
       ctx.font = '20px Arial';
       ctx.fillText('Score: ' + score, 10, 20);
 
-      // Draw game over message
+      // قائمة البداية
+      if (!gameStarted) {
+        ctx.fillStyle = 'black';
+        ctx.font = '30px Arial';
+        ctx.fillText('Press Space to Start', 260, 150);
+      }
+
+      // نهاية اللعبة
       if (gameOver) {
+        ctx.fillStyle = 'black';
         ctx.font = '30px Arial';
         ctx.fillText('Game Over! Press Enter to Restart', 200, 150);
       }
