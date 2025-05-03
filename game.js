@@ -33,6 +33,7 @@ function gameLoop() {
 }
 
 window.addEventListener('keydown', () => {
+    // Edited by 23majed: added comment to keydown event listener
     if (!player.jumping) {
         player.velocityY = jumpForce;
         player.jumping = true;
