@@ -60,36 +60,37 @@
       obstacles = [];
       score = 0;
       gameOver = false;
-      update();
     }
 
     function update() {
-      if (gameOver) return;
-
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      player.velocityY += gravity;
-      player.y += player.velocityY;
-      if (player.y > 270) {
-        player.y = 270;
-        player.jumping = false;
+      // Draw ground
+      ctx.fillStyle = 'green';
+      ctx.fillRect(0, 280, canvas.width, 20);
+
+      if (!gameOver) {
+        player.velocityY += gravity;
+        player.y += player.velocityY;
+        if (player.y > 270) {
+          player.y = 270;
+          player.jumping = false;
+        }
       }
 
+      // Draw player
       ctx.fillStyle = 'blue';
       ctx.fillRect(player.x, player.y, player.width, player.height);
 
+      // Draw obstacles
       ctx.fillStyle = 'red';
       for (let i = 0; i < obstacles.length; i++) {
         let obs = obstacles[i];
-        obs.x -= 5;
+        if (!gameOver) obs.x -= 5;
         ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
 
-        if (detectCollision(player, obs)) {
+        if (!gameOver && detectCollision(player, obs)) {
           gameOver = true;
-          ctx.fillStyle = 'black';
-          ctx.font = '30px Arial';
-          ctx.fillText('Game Over! Press Enter to Restart', 200, 150);
-          return;
         }
 
         if (obs.x + obs.width < player.x && !obs.scored) {
@@ -98,9 +99,16 @@
         }
       }
 
+      // Draw score
       ctx.fillStyle = 'black';
       ctx.font = '20px Arial';
       ctx.fillText('Score: ' + score, 10, 20);
+
+      // Draw game over message
+      if (gameOver) {
+        ctx.font = '30px Arial';
+        ctx.fillText('Game Over! Press Enter to Restart', 200, 150);
+      }
 
       requestAnimationFrame(update);
     }
