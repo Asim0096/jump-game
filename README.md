@@ -60,3 +60,6 @@ Press the spacebar to make the character jump!
 Collaboration
 
 We used GitHub issues and pull requests to divide work and track progress
+
+### Live Game Link:
+[Click here to play](https://asim0096.github.io/jump-game/)
