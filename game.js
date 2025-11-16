@@ -6,8 +6,8 @@ window.addEventListener('load', () => {
   const PLAYER_RADIUS = 30;
   const OBSTACLE_WIDTH = 20;
   const OBSTACLE_HEIGHT = 25;
-  const MIN_SPAWN_INTERVAL = 800; // لا تقل المسافة بين العوائق
-  let spawnInterval = 2500; // البداية
+  const MIN_SPAWN_INTERVAL = 800; // الحد الأدنى بين العوائق
+  let spawnInterval = 1800; // البداية (أقصر من قبل)
   let spawnTimer = 0;
 
   let groundHeight;
@@ -85,7 +85,7 @@ window.addEventListener('load', () => {
   function updateDifficulty() {
     if (score > 0 && score % 5 === 0) {
       speed += 1; // زيادة السرعة
-      spawnInterval = Math.max(MIN_SPAWN_INTERVAL, spawnInterval - 200); // تقليل المسافة بين العوائق
+      spawnInterval = Math.max(MIN_SPAWN_INTERVAL, spawnInterval - 150); // العوائق أقرب تدريجياً
     }
   }
 
@@ -104,7 +104,7 @@ window.addEventListener('load', () => {
     obstacles = [];
     score = 0;
     speed = 5;
-    spawnInterval = 2500;
+    spawnInterval = 1800;
     spawnTimer = 0;
     gameOver = false;
     gameStarted = false;
@@ -160,7 +160,7 @@ window.addEventListener('load', () => {
           highScore = score;
           localStorage.setItem('highScore', highScore);
         }
-        updateDifficulty(); // تحديث صعوبة اللعبة بعد كل 5 نقاط
+        updateDifficulty();
       }
     });
 
