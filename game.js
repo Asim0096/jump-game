@@ -22,7 +22,6 @@ window.addEventListener('load', () => {
     groundHeight = canvas.height * 0.1;
 
     if (player) {
-      // Small fixed size for player
       player.radius = Math.min(canvas.height * 0.05, 50); 
       player.y = canvas.height - groundHeight - player.radius*2;
     }
@@ -31,7 +30,7 @@ window.addEventListener('load', () => {
   function init() {
     player = {
       x: canvas.width * 0.1,
-      radius: Math.min(canvas.height * 0.05, 50), // أصغر لاعب، لا يزيد عن 50px
+      radius: Math.min(canvas.height * 0.05, 50), 
       y: canvas.height - groundHeight - Math.min(canvas.height * 0.05, 50)*2,
       velocityY: 0,
       jumping: false
@@ -44,7 +43,7 @@ window.addEventListener('load', () => {
 
   function jump() {
     if (!player.jumping && !gameOver && gameStarted) {
-      player.velocityY = -12;
+      player.velocityY = -15; // زيادة قوة القفزة لتجاوز العوائق بسهولة
       player.jumping = true;
       jumpSound.play().catch(()=>{});
     }
@@ -70,8 +69,8 @@ window.addEventListener('load', () => {
   // Obstacles
   function spawnObstacle() {
     if (gameStarted && !gameOver) {
-      let obsHeight = Math.min(canvas.height * 0.05, 40); // أصغر عائق
-      let obsWidth = Math.min(canvas.width * 0.03, 30);   // أصغر عرض
+      let obsHeight = Math.min(canvas.height * 0.04, 35); // أصغر ارتفاع
+      let obsWidth = Math.min(canvas.width * 0.025, 25);  // أصغر عرض
       obstacles.push({
         x: canvas.width,
         y: canvas.height - groundHeight - obsHeight,
@@ -81,7 +80,7 @@ window.addEventListener('load', () => {
       });
     }
   }
-  setInterval(spawnObstacle, 1500);
+  setInterval(spawnObstacle, 2200); // زيادة المسافة بين العوائق
 
   function detectCollision(circle, rect) {
     let closestX = Math.max(rect.x, Math.min(circle.x + circle.radius, rect.x + rect.width));
