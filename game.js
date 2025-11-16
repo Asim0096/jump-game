@@ -27,7 +27,25 @@ document.addEventListener('keydown', function(e) {
     resetGame();
   }
 });
+// Mouse & Touch controls (Jump + Reset)
+function handleInput() {
+    if (gameOver) {
+        resetGame();
+        return;
+    }
 
+    if (!gameStarted) {
+        gameStarted = true;
+    }
+
+    jump();
+}
+
+// Mouse click
+document.addEventListener("click", handleInput);
+
+// Touch on mobile
+document.addEventListener("touchstart", handleInput);
 function spawnObstacle() {
   if (gameStarted && !gameOver) {
     obstacles.push({ x: canvas.width, y: 270, width: 20, height: 30, scored: false });
