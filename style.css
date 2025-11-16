@@ -1,12 +1,18 @@
-/* Edited by 24majed: minor styling comment */
+/* Edited by 24majed: fixed full screen canvas */
 
-body {
+html, body {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background-color: #333;
 }
+
 canvas {
     display: block;
-    margin: auto;
+    width: 100%;
+    height: 100%;
     background-color: #fff;
     border: 2px solid #000;
 }
