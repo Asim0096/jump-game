@@ -19,13 +19,15 @@ function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     groundHeight = canvas.height * 0.1;
-    player.radius = canvas.height * 0.08;
-    player.y = canvas.height - groundHeight - player.radius*2;
+    if (player) {
+        player.radius = canvas.height * 0.08;
+        player.y = canvas.height - groundHeight - player.radius*2;
+    }
 }
-window.addEventListener('resize', resizeCanvas);
 
-resizeCanvas();
 init();
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 let gravity = 0.5;
 let score = 0;
@@ -35,6 +37,7 @@ let gameOver = false;
 let gameStarted = false;
 let speed = 5;
 
+// Sounds
 const jumpSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
 const hitSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
 const pointSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing.ogg');
@@ -56,16 +59,18 @@ function handleInput() {
     jump();
 }
 
+// Controls
 document.addEventListener('keydown', e => {
     if (e.code === 'Space') handleInput();
     if (e.code === 'Enter' && gameOver) resetGame();
 });
 document.addEventListener("click", handleInput);
-document.addEventListener("touchstart", function(e){
+document.addEventListener("touchstart", e => {
     e.preventDefault();
     handleInput();
 }, {passive:false});
 
+// Obstacles
 function spawnObstacle() {
     if (gameStarted && !gameOver) {
         let obsHeight = canvas.height * 0.07;
@@ -81,6 +86,7 @@ function spawnObstacle() {
 }
 setInterval(spawnObstacle, 1500);
 
+// Collision detection
 function detectCollision(circle, rect) {
     let closestX = Math.max(rect.x, Math.min(circle.x + circle.radius, rect.x + rect.width));
     let closestY = Math.max(rect.y, Math.min(circle.y + circle.radius, rect.y + rect.height));
@@ -89,6 +95,7 @@ function detectCollision(circle, rect) {
     return (dx*dx + dy*dy) < (circle.radius*circle.radius);
 }
 
+// Reset game
 function resetGame() {
     player.y = canvas.height - groundHeight - player.radius*2;
     player.velocityY = 0;
@@ -100,6 +107,7 @@ function resetGame() {
     gameStarted = false;
 }
 
+// Game loop
 function update() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
@@ -145,7 +153,7 @@ function update() {
 
     if (!gameOver && gameStarted) speed += 0.002;
 
-    // Score
+    // Score display
     ctx.fillStyle = 'black';
     ctx.font = `${canvas.width*0.02}px Arial`;
     ctx.textAlign = 'left';
@@ -160,7 +168,7 @@ function update() {
         ctx.fillText('Tap or Press Space to Start', canvas.width/2, canvas.height/2);
     }
 
-    // Game over
+    // Game over screen
     if (gameOver) {
         ctx.fillStyle = 'black';
         ctx.font = `${canvas.width*0.05}px Arial`;
