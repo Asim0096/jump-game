@@ -2,6 +2,14 @@ window.addEventListener('load', () => {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
+  // ثابت
+  const PLAYER_RADIUS = 30;
+  const OBSTACLE_WIDTH = 20;
+  const OBSTACLE_HEIGHT = 25;
+  const MIN_SPAWN_INTERVAL = 800; // لا تقل المسافة بين العوائق
+  let spawnInterval = 2500; // البداية
+  let spawnTimer = 0;
+
   let groundHeight;
   let player;
   let gravity = 0.5;
@@ -12,12 +20,6 @@ window.addEventListener('load', () => {
   let gameStarted = false;
   let speed = 5;
 
-  // Fixed sizes
-  const PLAYER_RADIUS = 30;  // ثابت
-  const OBSTACLE_WIDTH = 20; // ثابت
-  const OBSTACLE_HEIGHT = 25; // ثابت
-  const SPAWN_INTERVAL = 2500; // المسافة بين العوائق بالمللي ثانية
-
   // Sounds
   const jumpSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
   const hitSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
@@ -26,10 +28,8 @@ window.addEventListener('load', () => {
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    groundHeight = 80; // ثابت ارتفاع الأرض
-    if (player) {
-      player.y = canvas.height - groundHeight - PLAYER_RADIUS*2;
-    }
+    groundHeight = 80;
+    if (player) player.y = canvas.height - groundHeight - PLAYER_RADIUS*2;
   }
 
   function init() {
@@ -73,17 +73,21 @@ window.addEventListener('load', () => {
 
   // Obstacles
   function spawnObstacle() {
-    if (gameStarted && !gameOver) {
-      obstacles.push({
-        x: canvas.width,
-        y: canvas.height - groundHeight - OBSTACLE_HEIGHT,
-        width: OBSTACLE_WIDTH,
-        height: OBSTACLE_HEIGHT,
-        scored: false
-      });
+    obstacles.push({
+      x: canvas.width,
+      y: canvas.height - groundHeight - OBSTACLE_HEIGHT,
+      width: OBSTACLE_WIDTH,
+      height: OBSTACLE_HEIGHT,
+      scored:false
+    });
+  }
+
+  function updateDifficulty() {
+    if (score > 0 && score % 5 === 0) {
+      speed += 1; // زيادة السرعة
+      spawnInterval = Math.max(MIN_SPAWN_INTERVAL, spawnInterval - 200); // تقليل المسافة بين العوائق
     }
   }
-  setInterval(spawnObstacle, SPAWN_INTERVAL);
 
   function detectCollision(circle, rect) {
     let closestX = Math.max(rect.x, Math.min(circle.x + circle.radius, rect.x + rect.width));
@@ -100,11 +104,17 @@ window.addEventListener('load', () => {
     obstacles = [];
     score = 0;
     speed = 5;
+    spawnInterval = 2500;
+    spawnTimer = 0;
     gameOver = false;
     gameStarted = false;
   }
 
-  function update() {
+  let lastTime = 0;
+  function update(timestamp) {
+    const deltaTime = timestamp - lastTime;
+    lastTime = timestamp;
+
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
     // Ground
@@ -126,18 +136,35 @@ window.addEventListener('load', () => {
     ctx.fill();
 
     // Obstacles
+    spawnTimer += deltaTime;
+    if (spawnTimer >= spawnInterval && !gameOver && gameStarted) {
+      spawnObstacle();
+      spawnTimer = 0;
+    }
+
     ctx.fillStyle = 'red';
     obstacles.forEach(obs => {
       if (!gameOver && gameStarted) obs.x -= speed;
       ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
-      if (!gameOver && detectCollision(player, obs)) { gameOver = true; hitSound.play().catch(()=>{}); }
+
+      if (!gameOver && detectCollision(player, obs)) {
+        gameOver = true;
+        hitSound.play().catch(()=>{});
+      }
+
       if (!obs.scored && obs.x + obs.width < player.x) {
-        score++; obs.scored = true; pointSound.play().catch(()=>{});
-        if(score > highScore) { highScore = score; localStorage.setItem('highScore', highScore); }
+        score++;
+        obs.scored = true;
+        pointSound.play().catch(()=>{});
+        if(score > highScore) {
+          highScore = score;
+          localStorage.setItem('highScore', highScore);
+        }
+        updateDifficulty(); // تحديث صعوبة اللعبة بعد كل 5 نقاط
       }
     });
 
-    if (!gameOver && gameStarted) speed += 0.009;
+    if (!gameOver && gameStarted) speed += 0.002; // زيادة صغيرة مستمرة
 
     // Score
     ctx.fillStyle = 'black';
@@ -165,5 +192,5 @@ window.addEventListener('load', () => {
     requestAnimationFrame(update);
   }
 
-  update();
+  requestAnimationFrame(update);
 });
