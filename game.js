@@ -2,7 +2,8 @@ window.addEventListener('load', () => {
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
-  let groundHeight, player;
+  let groundHeight;
+  let player;
   let gravity = 0.5;
   let score = 0;
   let highScore = localStorage.getItem('highScore') || 0;
@@ -10,6 +11,12 @@ window.addEventListener('load', () => {
   let gameOver = false;
   let gameStarted = false;
   let speed = 5;
+
+  // Fixed sizes
+  const PLAYER_RADIUS = 30;  // ثابت
+  const OBSTACLE_WIDTH = 20; // ثابت
+  const OBSTACLE_HEIGHT = 25; // ثابت
+  const SPAWN_INTERVAL = 2500; // المسافة بين العوائق بالمللي ثانية
 
   // Sounds
   const jumpSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
@@ -19,19 +26,17 @@ window.addEventListener('load', () => {
   function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    groundHeight = canvas.height * 0.1;
-
+    groundHeight = 80; // ثابت ارتفاع الأرض
     if (player) {
-      player.radius = Math.min(canvas.height * 0.05, 50); 
-      player.y = canvas.height - groundHeight - player.radius*2;
+      player.y = canvas.height - groundHeight - PLAYER_RADIUS*2;
     }
   }
 
   function init() {
     player = {
-      x: canvas.width * 0.1,
-      radius: Math.min(canvas.height * 0.05, 50), 
-      y: canvas.height - groundHeight - Math.min(canvas.height * 0.05, 50)*2,
+      x: 100,
+      y: canvas.height - groundHeight - PLAYER_RADIUS*2,
+      radius: PLAYER_RADIUS,
       velocityY: 0,
       jumping: false
     };
@@ -43,7 +48,7 @@ window.addEventListener('load', () => {
 
   function jump() {
     if (!player.jumping && !gameOver && gameStarted) {
-      player.velocityY = -15; // زيادة قوة القفزة لتجاوز العوائق بسهولة
+      player.velocityY = -15;
       player.jumping = true;
       jumpSound.play().catch(()=>{});
     }
@@ -69,18 +74,16 @@ window.addEventListener('load', () => {
   // Obstacles
   function spawnObstacle() {
     if (gameStarted && !gameOver) {
-      let obsHeight = Math.min(canvas.height * 0.04, 35); // أصغر ارتفاع
-      let obsWidth = Math.min(canvas.width * 0.025, 25);  // أصغر عرض
       obstacles.push({
         x: canvas.width,
-        y: canvas.height - groundHeight - obsHeight,
-        width: obsWidth,
-        height: obsHeight,
-        scored:false
+        y: canvas.height - groundHeight - OBSTACLE_HEIGHT,
+        width: OBSTACLE_WIDTH,
+        height: OBSTACLE_HEIGHT,
+        scored: false
       });
     }
   }
-  setInterval(spawnObstacle, 2200); // زيادة المسافة بين العوائق
+  setInterval(spawnObstacle, SPAWN_INTERVAL);
 
   function detectCollision(circle, rect) {
     let closestX = Math.max(rect.x, Math.min(circle.x + circle.radius, rect.x + rect.width));
@@ -91,7 +94,7 @@ window.addEventListener('load', () => {
   }
 
   function resetGame() {
-    player.y = canvas.height - groundHeight - player.radius*2;
+    player.y = canvas.height - groundHeight - PLAYER_RADIUS*2;
     player.velocityY = 0;
     player.jumping = false;
     obstacles = [];
@@ -112,14 +115,14 @@ window.addEventListener('load', () => {
     if (!gameOver && gameStarted) {
       player.velocityY += gravity;
       player.y += player.velocityY;
-      if (player.y > canvas.height - groundHeight - player.radius*2) {
-        player.y = canvas.height - groundHeight - player.radius*2;
+      if (player.y > canvas.height - groundHeight - PLAYER_RADIUS*2) {
+        player.y = canvas.height - groundHeight - PLAYER_RADIUS*2;
         player.jumping = false;
       }
     }
     ctx.fillStyle = 'blue';
     ctx.beginPath();
-    ctx.arc(player.x + player.radius, player.y + player.radius, player.radius, 0, Math.PI*2);
+    ctx.arc(player.x + PLAYER_RADIUS, player.y + PLAYER_RADIUS, PLAYER_RADIUS, 0, Math.PI*2);
     ctx.fill();
 
     // Obstacles
@@ -138,7 +141,7 @@ window.addEventListener('load', () => {
 
     // Score
     ctx.fillStyle = 'black';
-    ctx.font = `${canvas.width*0.02}px Arial`;
+    ctx.font = `20px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${score}`, 10, 30);
     ctx.fillText(`High Score: ${highScore}`, 10, 60);
@@ -146,7 +149,7 @@ window.addEventListener('load', () => {
     // Start screen
     if (!gameStarted) {
       ctx.fillStyle = 'black';
-      ctx.font = `${canvas.width*0.05}px Arial`;
+      ctx.font = `40px Arial`;
       ctx.textAlign = 'center';
       ctx.fillText('Tap or Press Space to Start', canvas.width/2, canvas.height/2);
     }
@@ -154,7 +157,7 @@ window.addEventListener('load', () => {
     // Game over
     if (gameOver) {
       ctx.fillStyle = 'black';
-      ctx.font = `${canvas.width*0.05}px Arial`;
+      ctx.font = `40px Arial`;
       ctx.textAlign = 'center';
       ctx.fillText('Game Over! Tap or Press Enter to Restart', canvas.width/2, canvas.height/2);
     }
