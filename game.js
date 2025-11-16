@@ -20,8 +20,10 @@ window.addEventListener('load', () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     groundHeight = canvas.height * 0.1;
+
     if (player) {
-      player.radius = canvas.height * 0.05; // أصغر حجم للاعب
+      // Small fixed size for player
+      player.radius = Math.min(canvas.height * 0.05, 50); 
       player.y = canvas.height - groundHeight - player.radius*2;
     }
   }
@@ -29,8 +31,8 @@ window.addEventListener('load', () => {
   function init() {
     player = {
       x: canvas.width * 0.1,
-      radius: canvas.height * 0.05, // أصغر لاعب
-      y: canvas.height - groundHeight - canvas.height * 0.05 * 2,
+      radius: Math.min(canvas.height * 0.05, 50), // أصغر لاعب، لا يزيد عن 50px
+      y: canvas.height - groundHeight - Math.min(canvas.height * 0.05, 50)*2,
       velocityY: 0,
       jumping: false
     };
@@ -68,8 +70,8 @@ window.addEventListener('load', () => {
   // Obstacles
   function spawnObstacle() {
     if (gameStarted && !gameOver) {
-      let obsHeight = canvas.height * 0.05; // أصغر عائق
-      let obsWidth = canvas.width * 0.03;   // أصغر عرض
+      let obsHeight = Math.min(canvas.height * 0.05, 40); // أصغر عائق
+      let obsWidth = Math.min(canvas.width * 0.03, 30);   // أصغر عرض
       obstacles.push({
         x: canvas.width,
         y: canvas.height - groundHeight - obsHeight,
