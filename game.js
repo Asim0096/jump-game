@@ -1,16 +1,15 @@
-    const canvas = document.getElementById('gameCanvas');
+const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
 function resizeCanvas() {
-    canvas.width = window.innerWidth * 0.8;
-    canvas.height = window.innerHeight * 0.8;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    groundHeight = canvas.height * 0.1;
+    player.radius = canvas.height * 0.08;
+    player.y = canvas.height - groundHeight - player.radius*2;
 }
 resizeCanvas();
-window.addEventListener('resize', () => {
-    resizeCanvas();
-    groundHeight = canvas.height * 0.1;
-    player.y = canvas.height - groundHeight - player.radius*2;
-});
+window.addEventListener('resize', resizeCanvas);
 
 let groundHeight = canvas.height * 0.1;
 
