@@ -1,6 +1,20 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+let groundHeight;
+let player;
+
+function init() {
+    groundHeight = canvas.height * 0.1;
+    player = {
+        x: canvas.width * 0.1,
+        radius: canvas.height * 0.08,
+        y: canvas.height - groundHeight - canvas.height * 0.08 * 2,
+        velocityY: 0,
+        jumping: false
+    };
+}
+
 function resizeCanvas() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -8,18 +22,10 @@ function resizeCanvas() {
     player.radius = canvas.height * 0.08;
     player.y = canvas.height - groundHeight - player.radius*2;
 }
-resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-let groundHeight = canvas.height * 0.1;
-
-let player = { 
-    x: canvas.width * 0.1, 
-    y: canvas.height - groundHeight - canvas.height*0.08, 
-    radius: canvas.height*0.08, 
-    velocityY: 0, 
-    jumping: false 
-};
+resizeCanvas();
+init();
 
 let gravity = 0.5;
 let score = 0;
@@ -37,39 +43,39 @@ function jump() {
     if (!player.jumping && !gameOver && gameStarted) {
         player.velocityY = -12;
         player.jumping = true;
-        jumpSound.play();
+        jumpSound.play().catch(()=>{});
     }
 }
 
 function handleInput() {
+    if (!gameStarted) gameStarted = true;
     if (gameOver) {
         resetGame();
         return;
     }
-    if (!gameStarted) gameStarted = true;
     jump();
 }
 
 document.addEventListener('keydown', e => {
-    if (e.code === 'Space') { handleInput(); }
-    if (e.code === 'Enter' && gameOver) { resetGame(); }
+    if (e.code === 'Space') handleInput();
+    if (e.code === 'Enter' && gameOver) resetGame();
 });
 document.addEventListener("click", handleInput);
 document.addEventListener("touchstart", function(e){
     e.preventDefault();
     handleInput();
-}, {passive: false});
+}, {passive:false});
 
 function spawnObstacle() {
     if (gameStarted && !gameOver) {
         let obsHeight = canvas.height * 0.07;
         let obsWidth = canvas.width * 0.04;
-        obstacles.push({ 
-            x: canvas.width, 
-            y: canvas.height - groundHeight - obsHeight, 
-            width: obsWidth, 
-            height: obsHeight, 
-            scored: false 
+        obstacles.push({
+            x: canvas.width,
+            y: canvas.height - groundHeight - obsHeight,
+            width: obsWidth,
+            height: obsHeight,
+            scored: false
         });
     }
 }
@@ -97,9 +103,11 @@ function resetGame() {
 function update() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    // Ground
     ctx.fillStyle = 'green';
     ctx.fillRect(0, canvas.height - groundHeight, canvas.width, groundHeight);
 
+    // Player
     if (!gameOver && gameStarted) {
         player.velocityY += gravity;
         player.y += player.velocityY;
@@ -108,12 +116,12 @@ function update() {
             player.jumping = false;
         }
     }
-
     ctx.fillStyle = 'blue';
     ctx.beginPath();
     ctx.arc(player.x + player.radius, player.y + player.radius, player.radius, 0, Math.PI*2);
     ctx.fill();
 
+    // Obstacles
     ctx.fillStyle = 'red';
     obstacles.forEach(obs => {
         if (!gameOver && gameStarted) obs.x -= speed;
@@ -121,13 +129,13 @@ function update() {
 
         if (!gameOver && detectCollision(player, obs)) {
             gameOver = true;
-            hitSound.play();
+            hitSound.play().catch(()=>{});
         }
 
         if (!obs.scored && obs.x + obs.width < player.x) {
             score++;
             obs.scored = true;
-            pointSound.play();
+            pointSound.play().catch(()=>{});
             if(score > highScore) {
                 highScore = score;
                 localStorage.setItem('highScore', highScore);
@@ -137,12 +145,14 @@ function update() {
 
     if (!gameOver && gameStarted) speed += 0.002;
 
+    // Score
     ctx.fillStyle = 'black';
     ctx.font = `${canvas.width*0.02}px Arial`;
     ctx.textAlign = 'left';
     ctx.fillText(`Score: ${score}`, 10, 30);
     ctx.fillText(`High Score: ${highScore}`, 10, 60);
 
+    // Start screen
     if (!gameStarted) {
         ctx.fillStyle = 'black';
         ctx.font = `${canvas.width*0.05}px Arial`;
@@ -150,6 +160,7 @@ function update() {
         ctx.fillText('Tap or Press Space to Start', canvas.width/2, canvas.height/2);
     }
 
+    // Game over
     if (gameOver) {
         ctx.fillStyle = 'black';
         ctx.font = `${canvas.width*0.05}px Arial`;
