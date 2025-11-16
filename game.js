@@ -137,7 +137,7 @@ window.addEventListener('load', () => {
       }
     });
 
-    if (!gameOver && gameStarted) speed += 0.002;
+    if (!gameOver && gameStarted) speed += 0.009;
 
     // Score
     ctx.fillStyle = 'black';
