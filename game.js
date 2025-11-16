@@ -3,6 +3,18 @@ const ctx = canvas.getContext('2d');
 
 let groundHeight;
 let player;
+let gravity = 0.5;
+let score = 0;
+let highScore = localStorage.getItem('highScore') || 0;
+let obstacles = [];
+let gameOver = false;
+let gameStarted = false;
+let speed = 5;
+
+// Sounds
+const jumpSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
+const hitSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
+const pointSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing.ogg');
 
 function init() {
     groundHeight = canvas.height * 0.1;
@@ -24,23 +36,6 @@ function resizeCanvas() {
         player.y = canvas.height - groundHeight - player.radius*2;
     }
 }
-
-init();
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-let gravity = 0.5;
-let score = 0;
-let highScore = localStorage.getItem('highScore') || 0;
-let obstacles = [];
-let gameOver = false;
-let gameStarted = false;
-let speed = 5;
-
-// Sounds
-const jumpSound = new Audio('https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.ogg');
-const hitSound = new Audio('https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg');
-const pointSound = new Audio('https://actions.google.com/sounds/v1/cartoon/boing.ogg');
 
 function jump() {
     if (!player.jumping && !gameOver && gameStarted) {
@@ -179,4 +174,9 @@ function update() {
     requestAnimationFrame(update);
 }
 
-update();
+// Run after window loads
+window.addEventListener('load', () => {
+    resizeCanvas();
+    init();
+    update();
+});
