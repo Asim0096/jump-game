@@ -3,14 +3,6 @@ Jump Game - 2D Web Game
 
 This is a simple 2D jump game developed as a group project using HTML, CSS, and JavaScript. The game runs in the browser, and the player jumps when tapping or clicking, similar to classic mobile games.
 
-Team Members
-
-Asim0096 – Implemented the character movement and gravity (jump mechanics).
-
-23majed – Developed obstacle generation and collision detection.
-
-24majed – Created the scoring system and game-over logic.
-
 Tools & Technologies
 
 HTML, CSS, JavaScript
